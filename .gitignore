@@ -1,0 +1,3 @@
+# Update the ignore entry
+app-data/ 
+node_modules/

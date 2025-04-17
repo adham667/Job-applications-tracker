@@ -1,0 +1,575 @@
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --success-color: #4CAF50;
+    --danger-color: #ef233c;
+    --warning-color: #f7b801;
+    --light-bg: #f8f9fa;
+    --dark-text: #2b2d42;
+    --light-text: #8d99ae;
+    --white: #ffffff;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: var(--light-bg);
+    color: var(--dark-text);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.actions {
+    margin-bottom: 20px;
+}
+
+/* Header Styling */
+h1 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+h1:before {
+    font-weight: 900;
+    font-size: 2rem;
+}
+
+/* Add Application Button */
+.add-btn {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.add-btn:before {
+    content: '\f067';  /* Plus icon */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+}
+
+.add-btn:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin: 2rem 0;
+}
+
+th {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+}
+
+td {
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover {
+    background-color: #f5f7ff;
+}
+
+/* Status Select Styling */
+.status-select {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 200px;
+    cursor: pointer;
+    background-color: var(--white);
+    transition: all 0.3s ease;
+}
+
+.status-select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+}
+
+/* Template Card Styling */
+.template-card {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    background-color: var(--white);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    width: fit-content;
+    height: 155px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+}
+
+.template-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+}
+
+.template-card h4 {
+    margin: 0 0 15px 0;
+    color: var(--dark-text);
+    font-size: 1.2rem;
+}
+
+.template-card h4:before {
+    content: '\f15c';  /* File icon */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    margin-right: 8px;
+    color: var(--primary-color);
+}
+
+/* Button Styling */
+.cv-button, .edit-button, .delete-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.cv-button {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.cv-button:before {
+    content: '\f15c';  /* File icon */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+}
+
+.edit-button {
+    background-color: var(--warning-color);
+    color: var(--white);
+}
+
+.edit-button:before {
+    content: '\f044';  /* Edit icon */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+}
+
+.delete-button {
+    background-color: var(--danger-color);
+    color: var(--white);
+}
+
+.delete-button:before {
+    content: '\f1f8';  /* Trash icon */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+}
+
+/* Modal Styling */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 50%;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.close {
+    float: right;
+    cursor: pointer;
+    font-size: 24px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+    width: 95%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+}
+
+/* Custom Notification Styling */
+.custom-notification {
+    padding: 16px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.custom-notification:before {
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+}
+
+.custom-notification.success {
+    background-color: var(--success-color);
+}
+
+.custom-notification.success:before {
+    content: '\f00c';  /* Check icon */
+}
+
+.custom-notification.error {
+    background-color: var(--danger-color);
+}
+
+.custom-notification.error:before {
+    content: '\f071';  /* Warning icon */
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--light-text);
+}
+
+.empty-state:before {
+    content: '\f07b';  /* Folder icon */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+/* Add these styles to your existing CSS */
+.templates-container {
+    margin-top: 20px;
+}
+
+.templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 50px;
+    margin-top: 20px;
+}
+
+.template-card p {
+    color: #666;
+    margin: 10px 0;
+}
+
+/* Add these styles to your existing CSS */
+.templates-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.add-template-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.add-template-btn:hover {
+    background-color: #45a049;
+}
+
+/* Optional: Add notification styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px;
+    border-radius: 4px;
+    color: white;
+    z-index: 1000;
+}
+
+.notification.success {
+    background-color: #4CAF50;
+}
+
+.notification.error {
+    background-color: #f44336;
+}
+
+.skip-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.skip-btn:hover {
+    background-color: #5a6268;
+}
+
+.select-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.select-btn:hover {
+    background-color: #45a049;
+} 
+
+.end-btn {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.save-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Custom Notification */
+.custom-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 4px;
+    color: white;
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+}
+
+.custom-notification.success {
+    background-color: #4CAF50;
+}
+
+.custom-notification.error {
+    background-color: #f44336;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Custom Confirm Dialog */
+.custom-confirm {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.confirm-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 400px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.confirm-content p {
+    margin: 0 0 20px 0;
+    color: var(--dark-text);
+    font-size: 1.1rem;
+}
+
+.confirm-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.confirm-buttons button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.confirm-yes {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.confirm-yes:hover {
+    background-color: #d90429;
+}
+
+.confirm-no {
+    background-color: var(--light-text);
+    color: white;
+}
+
+.confirm-no:hover {
+    background-color: #6c757d;
+}
+
+.application-info {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.application-info h3 {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#applicationDetails {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+#applicationDetails p {
+    margin: 0;
+    padding: 10px;
+    background-color: var(--light-bg);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#applicationDetails strong {
+    color: var(--dark-text);
+    min-width: 120px;
+    display: inline-block;
+}
+
+.template-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.template-actions button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.edit-btn {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #e6a800;
+    transform: translateY(-2px);
+}
+
+.delete-btn {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #d90429;
+    transform: translateY(-2px);
+}
