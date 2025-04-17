@@ -2,7 +2,6 @@
 
 A modern desktop application built with Electron for tracking job applications, managing CV templates, and organizing your job search process.
 
-![Application Screenshot](screenshots/app-screenshot.png)
 
 ## Features
 
@@ -17,12 +16,6 @@ A modern desktop application built with Electron for tracking job applications, 
   - Select templates for new applications
   - Edit and delete existing templates
   - Option to proceed without a CV
-
-- 📊 **Statistics & Insights**
-  - View total applications count
-  - Track applications by status
-  - Monitor job type distribution
-  - View recent applications
 
 - 🎨 **Modern UI**
   - Clean and intuitive interface
@@ -73,7 +66,6 @@ npm start
 - View all applications in the main table
 - Update application status using the dropdown menu
 - Delete applications when needed
-- View application statistics in the dashboard
 
 ## Project Structure
 
@@ -89,54 +81,3 @@ job-application-tracker/
 ├── package.json        # Project configuration
 └── README.md          # Project documentation
 ```
-
-## Data Storage
-
-The application stores data in the following locations:
-
-- **Windows**: `%APPDATA%/app-data/`
-- **macOS**: `~/Library/Application Support/app-data/`
-- **Linux**: `~/.config/app-data/`
-
-This includes:
-- Application data
-- CV templates
-- User preferences
-
-## Development
-
-### Prerequisites
-- Node.js (v14 or higher)
-- npm (v6 or higher)
-
-### Building for Production
-```bash
-npm run build
-```
-
-### Running Tests
-```bash
-npm test
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [Electron](https://www.electronjs.org/) - For the framework
-- [Font Awesome](https://fontawesome.com/) - For the icons
-- All contributors who have helped shape this project
-
-## Support
-
-If you encounter any issues or have suggestions, please [open an issue](https://github.com/yourusername/job-application-tracker/issues) on GitHub. 
