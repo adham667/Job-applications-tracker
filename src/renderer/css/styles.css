@@ -4,7 +4,7 @@
     --success-color: #4CAF50;
     --danger-color: #ef233c;
     --warning-color: #f7b801;
-    --light-bg: #f8f9fa;
+    --light-bg: #d6defe;
     --dark-text: #2b2d42;
     --light-text: #8d99ae;
     --white: #ffffff;
@@ -191,6 +191,7 @@ tr:hover {
     content: '\f044';  /* Edit icon */
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
+    ;
 }
 
 .delete-button {
@@ -311,10 +312,17 @@ tr:hover {
 }
 
 .templates-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 50px;
-    margin-top: 20px;
+}
+.templates-grid > * {
+    width: 250px;
+}
+.templates-list{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 50px;
 }
 
 .template-card p {
