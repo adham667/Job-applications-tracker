@@ -24,6 +24,11 @@ A modern desktop application built with Electron for tracking job applications, 
   - Monitor job type distribution
   - View recent applications
 
+- 🤖 **AI-Powered CV Tailoring**
+  - Paste job descriptions to get LLM-based suggestions
+  - Automatically rewrite and improve CV bullet points (Powered by Groq API)
+  - Seamlessly edit your CV within a built-in rich text editor
+
 - 🎨 **Modern UI**
   - Clean and intuitive interface
   - Responsive design
@@ -43,7 +48,18 @@ cd job-application-tracker
 npm install
 ```
 
-3. Start the application:
+3. Setup your environment variables:
+Create a `.env` file in the root directory and add your Groq API key (required for AI features):
+```env
+VITE_GROQ_API_KEY=your_groq_api_key_here
+```
+
+4. Build the React User Interface:
+```bash
+npm run build:ui
+```
+
+5. Start the application:
 ```bash
 npm start
 ```
@@ -92,22 +108,27 @@ job-application-tracker/
 
 ## Data Storage
 
-The application stores data in the following locations:
+The application stores data locally within the project root directory:
 
-- **Windows**: `%APPDATA%/app-data/`
-- **macOS**: `~/Library/Application Support/app-data/`
-- **Linux**: `~/.config/app-data/`
+- **Path**: `job-application-tracker/app-data/`
 
 This includes:
-- Application data
-- CV templates
-- User preferences
+- Application data (`applications/` folder)
+- CV templates (`cv-templates/` folder)
+- System logs (`logs/` folder)
 
 ## Development
 
 ### Prerequisites
 - Node.js (v14 or higher)
 - npm (v6 or higher)
+
+### Development Setup
+If you are developing or making changes to the React UI, you can run the Vite dev server:
+```bash
+npm run dev:ui
+```
+*(Note: You will still need to run `npm start` in a separate terminal to launch the Electron wrapper if you need the main process).*
 
 ### Building for Production
 ```bash
