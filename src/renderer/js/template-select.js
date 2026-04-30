@@ -44,6 +44,7 @@ function displayApplicationDetails(application) {
         <p><strong>Applied Date:</strong> ${application.appliedDate}</p>
         <p><strong>Job Type:</strong> ${application.jobType}</p>
         <p><strong>Status:</strong> ${application.status}</p>
+        <p><strong>Job Description:</strong> ${application.jobDescription ? "Provided" : "Not provided"}</p>
     `
 }
 
@@ -131,6 +132,7 @@ function showNotification(message, type = 'success') {
 
 async function selectTemplate(templateName) {
     try {
+        showCustomNotification('Preparing template editor...')
         // Create application first
         const result = await window.electronAPI.createApplication(currentApplication)
         
@@ -142,22 +144,30 @@ async function selectTemplate(templateName) {
             )
             
             if (copyResult.success) {
-                // Open the CV file
-                await window.electronAPI.openCV(copyResult.cvPath)
-                
-                // Clear stored application data
-                localStorage.removeItem('currentApplication')
-                
-                // Navigate back to home page
-                window.location.href = 'home.html'
+                const openResult = await window.electronAPI.openTemplateEditor({
+                    templateName,
+                    application: { ...currentApplication, appId: result.appId },
+                    jobDescription: currentApplication?.jobDescription || "",
+                    cvPath: copyResult.cvPath
+                })
+
+                if (!openResult.success) {
+                    showCustomNotification(openResult.error || 'Error opening editor', 'error')
+                }
             } else {
-                alert('Error copying template: ' + copyResult.error)
+                showCustomNotification('Error copying template: ' + copyResult.error, 'error')
             }
         } else {
-            alert('Error creating application')
+            showCustomNotification('Error creating application', 'error')
         }
     } catch (error) {
-        alert('Error processing template')
+        console.error('Error processing template selection:', error)
+        window.electronAPI.logClientError?.({
+            source: "template-select.selectTemplate",
+            message: error.message,
+            stack: error.stack
+        })
+        showCustomNotification('Error processing template', 'error')
     }
 }
 
@@ -210,13 +220,17 @@ async function deleteTemplate(templateName) {
 
 async function editTemplate(templateName) {
     try {
-        const result = await window.electronAPI.editCVTemplate(templateName)
+        const result = await window.electronAPI.openTemplateEditor({
+            templateName,
+            application: currentApplication || null,
+            jobDescription: currentApplication?.jobDescription || ""
+        })
         if (result.success) {
-            showCustomNotification('Template opened for editing')
+            showCustomNotification('Opening CV editor...')
         } else {
-            showCustomNotification('Error opening template', 'error')
+            showCustomNotification(result.error || 'Error opening template editor', 'error')
         }
     } catch (error) {
-        showCustomNotification('Error opening template', 'error')
+        showCustomNotification('Error opening template editor', 'error')
     }
 } 

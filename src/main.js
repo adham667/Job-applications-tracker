@@ -2,10 +2,13 @@ const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron')
 const path = require('path')
 const fs = require('fs').promises
 const fsSync = require('fs')
-const { log } = require('console')
+const mammoth = require("mammoth")
+const HTMLtoDOCX = require("html-to-docx")
+require("dotenv").config({ path: path.join(__dirname, "..", ".env") })
 
 let mainWindow
 let applications = []
+let editorContext = null
 
 function getAppPath() {
     // Get the project root directory by going up from the electron dist folder
@@ -17,6 +20,7 @@ function getAppPath() {
 const APP_DATA_PATH = path.join(getAppPath(), 'app-data')
 const TEMPLATES_PATH = path.join(APP_DATA_PATH, 'cv-templates')
 const APPLICATIONS_PATH = path.join(APP_DATA_PATH, 'applications')
+const LOGS_PATH = path.join(APP_DATA_PATH, "logs")
 
 
 
@@ -27,6 +31,7 @@ async function initializeDirectories() {
         await fs.mkdir(APP_DATA_PATH, { recursive: true })
         await fs.mkdir(TEMPLATES_PATH, { recursive: true })
         await fs.mkdir(APPLICATIONS_PATH, { recursive: true })
+        await fs.mkdir(LOGS_PATH, { recursive: true })
         
         console.log('Directories initialized successfully at:', APP_DATA_PATH)
     } catch (error) {
@@ -132,6 +137,45 @@ ipcMain.handle('create-application', async (event, application) => {
         }
     } catch (error) {
         console.error('Error creating application:', error)
+        return { success: false, error: error.message }
+    }
+})
+
+ipcMain.handle('create-application-with-cv', async (event, payload) => {
+    try {
+        const application = payload?.application
+        const fileBytes = payload?.fileBytes
+        let fileName = payload?.fileName || `CV_${Date.now()}.docx`
+
+        if (!application || !fileBytes || !Array.isArray(fileBytes)) {
+            return { success: false, error: 'Invalid payload for application creation.' }
+        }
+
+        if (!fileName.toLowerCase().endsWith('.docx')) {
+            fileName = `${fileName}.docx`
+        }
+
+        const appId = Date.now()
+        const appFolderPath = path.join(APPLICATIONS_PATH, appId.toString())
+        await fs.mkdir(appFolderPath, { recursive: true })
+
+        await fs.writeFile(
+            path.join(appFolderPath, 'info.json'),
+            JSON.stringify(application, null, 2)
+        )
+
+        const cvPath = path.join(appFolderPath, fileName)
+        const buffer = Buffer.from(fileBytes)
+        await fs.writeFile(cvPath, buffer)
+
+        return {
+            success: true,
+            appId,
+            folderPath: appFolderPath,
+            cvPath,
+        }
+    } catch (error) {
+        console.error('Error creating application with CV:', error)
         return { success: false, error: error.message }
     }
 })
@@ -315,6 +359,135 @@ ipcMain.handle('edit-cv-template', async (event, templateName) => {
         console.error('Error opening template:', error)
         return { success: false, error: error.message }
     }
+})
+
+ipcMain.handle("open-template-editor", async (event, payload) => {
+    try {
+        const normalizedPayload = payload || {}
+        if (!normalizedPayload.cvPath && normalizedPayload.templateName) {
+            normalizedPayload.cvPath = path.join(TEMPLATES_PATH, normalizedPayload.templateName)
+        }
+        editorContext = normalizedPayload
+        const reactDistPath = path.join(__dirname, "renderer", "dist", "index.html")
+        if (!fsSync.existsSync(reactDistPath)) {
+            return { success: false, error: "Editor UI is not built. Run npm run build:ui." }
+        }
+        await mainWindow.loadFile(reactDistPath)
+        return { success: true }
+    } catch (error) {
+        return { success: false, error: error.message }
+    }
+})
+
+ipcMain.handle("get-editor-context", async () => {
+    return editorContext || {}
+})
+
+ipcMain.handle("close-template-editor", async () => {
+    try {
+        editorContext = null
+        await mainWindow.loadFile(path.join(__dirname, 'renderer', 'pages', 'home.html'))
+        return { success: true }
+    } catch (error) {
+        return { success: false, error: error.message }
+    }
+})
+
+ipcMain.handle("save-docx", async (event, payload) => {
+    try {
+        const fileBytes = payload?.fileBytes
+        const html = payload?.html
+        const result = await dialog.showSaveDialog(mainWindow, {
+            title: "Export CV as DOCX",
+            defaultPath: "CV.docx",
+            filters: [{ name: "Word Document", extensions: ["docx"] }],
+        })
+
+        if (result.canceled || !result.filePath) {
+            return { success: false, error: "Save canceled." }
+        }
+
+        if (Array.isArray(fileBytes)) {
+            // Convert array of bytes to Buffer
+            const buffer = Buffer.from(fileBytes)
+            await fs.writeFile(result.filePath, buffer)
+        } else if (html) {
+            const htmlDocument = `<!DOCTYPE html><html><head><meta charset="utf-8" /></head><body>${html}</body></html>`
+            const docxBuffer = await HTMLtoDOCX(htmlDocument, null, {
+                footer: false,
+                pageNumber: false,
+            })
+            await fs.writeFile(result.filePath, Buffer.from(docxBuffer))
+        } else if (fileBytes) {
+            await fs.writeFile(result.filePath, Buffer.from(fileBytes))
+        }
+
+        return { success: true, filePath: result.filePath }
+    } catch (error) {
+        return { success: false, error: error.message }
+    }
+})
+
+ipcMain.handle("save-docx-to-path", async (event, payload) => {
+    try {
+        const filePath = payload?.filePath
+        const fileBytes = payload?.fileBytes
+
+        if (!filePath) {
+            return { success: false, error: "File path not provided." }
+        }
+
+        if (!Array.isArray(fileBytes)) {
+            return { success: false, error: "Invalid file data." }
+        }
+
+        const buffer = Buffer.from(fileBytes)
+        await fs.writeFile(filePath, buffer)
+
+        return { success: true, filePath }
+    } catch (error) {
+        return { success: false, error: error.message }
+    }
+})
+
+ipcMain.handle("read-docx-text", async (event, filePath) => {
+    try {
+        if (!filePath || !filePath.toLowerCase().endsWith(".docx")) {
+            return { success: false, error: "Only .docx files are supported for import." }
+        }
+
+        const fileBuffer = await fs.readFile(filePath)
+        const [textResult, htmlResult] = await Promise.all([
+            mammoth.extractRawText({ buffer: fileBuffer }),
+            mammoth.convertToHtml({ buffer: fileBuffer }),
+        ])
+        return {
+            success: true,
+            text: textResult.value || "",
+            html: htmlResult.value || "",
+            warnings: [...(textResult.messages || []), ...(htmlResult.messages || [])]
+        }
+    } catch (error) {
+        console.error("Error reading DOCX:", error)
+        return { success: false, error: error.message }
+    }
+})
+
+ipcMain.handle("log-client-error", async (event, payload) => {
+    try {
+        const logPath = path.join(LOGS_PATH, "renderer-errors.log")
+        const line = `${new Date().toISOString()} ${JSON.stringify(payload)}\n`
+        await fs.appendFile(logPath, line, "utf8")
+        return { success: true }
+    } catch (error) {
+        console.error("Error writing renderer log:", error)
+        return { success: false, error: error.message }
+    }
+})
+
+ipcMain.handle("get-groq-api-key", async () => {
+    const key = process.env.VITE_GROQ_API_KEY || process.env.GROQ_API_KEY || ""
+    return { success: Boolean(key), key }
 })
 
 app.on('window-all-closed', () => {

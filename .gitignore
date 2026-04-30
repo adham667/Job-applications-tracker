@@ -2,3 +2,4 @@
 app-data/ 
 node_modules/
 dist/
+.env
