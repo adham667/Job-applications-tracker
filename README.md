@@ -17,6 +17,17 @@ A modern desktop application built with Electron for tracking job applications, 
   - Edit and delete existing templates
   - Option to proceed without a CV
 
+- 📊 **Statistics & Insights**
+  - View total applications count
+  - Track applications by status
+  - Monitor job type distribution
+  - View recent applications
+
+- 🤖 **AI-Powered CV Tailoring**
+  - Paste job descriptions to get LLM-based suggestions
+  - Automatically rewrite and improve CV bullet points (Powered by Groq API)
+  - Seamlessly edit your CV within a built-in rich text editor
+
 - 🎨 **Modern UI**
   - Clean and intuitive interface
   - Responsive design
@@ -36,7 +47,18 @@ cd job-application-tracker
 npm install
 ```
 
-3. Start the application:
+3. Setup your environment variables:
+Create a `.env` file in the root directory and add your Groq API key (required for AI features):
+```env
+VITE_GROQ_API_KEY=your_groq_api_key_here
+```
+
+4. Build the React User Interface:
+```bash
+npm run build:ui
+```
+
+5. Start the application:
 ```bash
 npm start
 ```
@@ -81,3 +103,59 @@ job-application-tracker/
 ├── package.json        # Project configuration
 └── README.md          # Project documentation
 ```
+
+## Data Storage
+
+The application stores data locally within the project root directory:
+
+- **Path**: `job-application-tracker/app-data/`
+
+This includes:
+- Application data (`applications/` folder)
+- CV templates (`cv-templates/` folder)
+- System logs (`logs/` folder)
+
+## Development
+
+### Prerequisites
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+
+### Development Setup
+If you are developing or making changes to the React UI, you can run the Vite dev server:
+```bash
+npm run dev:ui
+```
+*(Note: You will still need to run `npm start` in a separate terminal to launch the Electron wrapper if you need the main process).*
+
+### Building for Production
+```bash
+npm run build
+```
+
+### Running Tests
+```bash
+npm test
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [Electron](https://www.electronjs.org/) - For the framework
+- [Font Awesome](https://fontawesome.com/) - For the icons
+- All contributors who have helped shape this project
+
+## Support
+
+If you encounter any issues or have suggestions, please [open an issue](https://github.com/yourusername/job-application-tracker/issues) on GitHub. 

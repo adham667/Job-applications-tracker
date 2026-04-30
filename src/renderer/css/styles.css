@@ -4,7 +4,7 @@
     --success-color: #4CAF50;
     --danger-color: #ef233c;
     --warning-color: #f7b801;
-    --light-bg: #f8f9fa;
+    --light-bg: #d6defe;
     --dark-text: #2b2d42;
     --light-text: #8d99ae;
     --white: #ffffff;
@@ -191,6 +191,7 @@ tr:hover {
     content: '\f044';  /* Edit icon */
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
+    ;
 }
 
 .delete-button {
@@ -213,13 +214,18 @@ tr:hover {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.5);
+    overflow-y: auto;
+    padding: 20px 0;
+    z-index: 1000;
 }
 
 .modal-content {
     background-color: white;
-    margin: 10% auto;
+    margin: 0 auto;
     padding: 20px;
     width: 50%;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
@@ -240,7 +246,8 @@ tr:hover {
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
     width: 95%;
     padding: 12px;
     border: 2px solid #ddd;
@@ -250,7 +257,8 @@ tr:hover {
 }
 
 .form-group input:focus,
-.form-group select:focus {
+.form-group select:focus,
+.form-group textarea:focus {
     border-color: var(--primary-color);
     outline: none;
     box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
@@ -311,10 +319,17 @@ tr:hover {
 }
 
 .templates-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 50px;
-    margin-top: 20px;
+}
+.templates-grid > * {
+    width: 250px;
+}
+.templates-list{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 50px;
 }
 
 .template-card p {
@@ -402,6 +417,12 @@ tr:hover {
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    .modal-content {
+        width: 90%;
+    }
 }
 
 /* Custom Notification */

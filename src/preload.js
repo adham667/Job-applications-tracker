@@ -24,5 +24,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getApplication: (appId) => ipcRenderer.invoke('get-application', appId),
     openCV: (path) => ipcRenderer.invoke('open-cv', path),
     deleteCVTemplate: (templateName) => ipcRenderer.invoke('delete-cv-template', templateName),
-    editCVTemplate: (templateName) => ipcRenderer.invoke('edit-cv-template', templateName)
-}) 
+    editCVTemplate: (templateName) => ipcRenderer.invoke('edit-cv-template', templateName),
+    openTemplateEditor: (payload) => ipcRenderer.invoke("open-template-editor", payload),
+    getEditorContext: () => ipcRenderer.invoke("get-editor-context"),
+    closeTemplateEditor: () => ipcRenderer.invoke("close-template-editor"),
+    saveDocx: (fileBytes) => ipcRenderer.invoke("save-docx", fileBytes),
+    saveDocxToPath: (payload) => ipcRenderer.invoke("save-docx-to-path", payload),
+    createApplicationWithCv: (payload) => ipcRenderer.invoke("create-application-with-cv", payload),
+    readDocxText: (filePath) => ipcRenderer.invoke("read-docx-text", filePath),
+    logClientError: (payload) => ipcRenderer.invoke("log-client-error", payload),
+    getGroqApiKey: () => ipcRenderer.invoke("get-groq-api-key")
+})

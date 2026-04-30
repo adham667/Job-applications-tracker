@@ -4,7 +4,9 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "dev:ui": "vite",
+    "build:ui": "vite build",
+    "build": "npm run build:ui && electron-builder"
   },
   "build": {
     "appId": "com.your.app",
@@ -12,7 +14,7 @@
       "output": "dist"
     },
     "win": {
-      "target": "nsis"
+      "target": "portable"
     },
     "mac": {
       "target": "dmg"
@@ -28,5 +30,22 @@
   "devDependencies": {
     "electron": "^35.1.5",
     "electron-builder": "^26.0.12"
+  },
+  "dependencies": {
+    "@tiptap/extension-color": "^3.22.5",
+    "@tiptap/extension-placeholder": "^3.22.5",
+    "@tiptap/extension-text-align": "^3.22.5",
+    "@tiptap/extension-text-style": "^3.22.5",
+    "@tiptap/extension-underline": "^3.22.5",
+    "@tiptap/react": "^3.22.5",
+    "@tiptap/starter-kit": "^3.22.5",
+    "@vitejs/plugin-react": "^6.0.1",
+    "docx": "^9.6.1",
+    "dotenv": "^17.4.2",
+    "html-to-docx": "^1.8.0",
+    "mammoth": "^1.12.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "vite": "^8.0.10"
   }
 }

@@ -146,7 +146,8 @@ function setupEventListeners() {
             appliedDate: document.getElementById('appliedDate').value,
             role: document.getElementById('role').value,
             jobType: document.getElementById('jobType').value,
-            status: document.getElementById('status').value
+            status: document.getElementById('status').value,
+            jobDescription: document.getElementById('jobDescription').value.trim()
         }
 
         localStorage.setItem('currentApplication', JSON.stringify(application))

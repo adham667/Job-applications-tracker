@@ -1,0 +1,163 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7fb;
+  color: #1f2a37;
+}
+
+.app-layout {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 16px;
+  padding: 16px;
+  height: 100vh;
+}
+
+.left-pane,
+.ai-panel {
+  background: #fff;
+  border: 1px solid #d8e0ea;
+  border-radius: 10px;
+  padding: 14px;
+  overflow: auto;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.editor-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+button {
+  border: 1px solid #1f6feb;
+  background: #1f6feb;
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.secondary-btn {
+  background: #fff;
+  color: #1f6feb;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.editor-surface .tiptap {
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  min-height: 75vh;
+  padding: 14px;
+  background: #fff;
+  outline: none;
+}
+
+.ai-panel textarea {
+  width: 100%;
+  margin-top: 6px;
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  padding: 10px;
+  resize: vertical;
+}
+
+.panel-actions {
+  margin-top: 10px;
+}
+
+.score-card {
+  margin: 12px 0;
+  background: #ecf3ff;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.score-card p {
+  margin: 0;
+}
+
+.score-card strong {
+  font-size: 28px;
+}
+
+.panel-block {
+  margin-top: 14px;
+}
+
+.keyword-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.keyword-list li {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.keyword-list li.present {
+  background: #e9f8ef;
+}
+
+.keyword-list li.missing {
+  background: #fff2f2;
+}
+
+.suggestion-card {
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.muted {
+  color: #6b7280;
+}
+
+.error {
+  color: #b42318;
+  font-weight: 600;
+}
+
+.spinner {
+  margin: 10px 0;
+  width: 22px;
+  height: 22px;
+  border: 3px solid #d8e0ea;
+  border-top: 3px solid #1f6feb;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
