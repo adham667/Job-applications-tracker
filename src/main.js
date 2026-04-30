@@ -311,7 +311,10 @@ ipcMain.handle('delete-application', async (event, appId) => {
 // Add this handler
 ipcMain.handle('open-cv', async (event, cvPath) => {
     try {
-        await shell.openPath(cvPath)
+        if (!cvPath) {
+            return { success: false, error: 'No CV path provided.' }
+        }
+        shell.showItemInFolder(cvPath)
         return { success: true }
     } catch (error) {
         return { success: false, error: error.message }

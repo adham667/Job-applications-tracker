@@ -166,7 +166,7 @@ export default function App() {
       const uint8Array = new Uint8Array(arrayBuffer);
       const fileBytes = Array.from(uint8Array);
 
-      if (cvPath) {
+      if (application && application.appId && cvPath) {
         const result = await window.electronAPI?.saveDocxToPath({ filePath: cvPath, fileBytes });
         if (!result?.success) throw new Error(result?.error || "Could not save CV file.");
       } else if (application) {
@@ -179,6 +179,9 @@ export default function App() {
           fileName: `CV_${sanitizedName}.docx`,
         });
         if (!result?.success) throw new Error(result?.error || "Could not create application and save CV.");
+      } else if (cvPath) {
+        const result = await window.electronAPI?.saveDocxToPath({ filePath: cvPath, fileBytes });
+        if (!result?.success) throw new Error(result?.error || "Could not save CV file.");
       } else {
         throw new Error("Unable to save CV. Application details are missing.");
       }
@@ -207,7 +210,6 @@ export default function App() {
           </div>
         </div>
         {error && <p className="error-banner">{error}</p>}
-        {success && <p className="success-banner">{success}</p>}
         <CVEditor
           content={editorContent}
           onEditorReady={setEditor}
