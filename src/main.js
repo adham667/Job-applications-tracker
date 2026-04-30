@@ -145,9 +145,10 @@ ipcMain.handle('create-application-with-cv', async (event, payload) => {
     try {
         const application = payload?.application
         const fileBytes = payload?.fileBytes
+        const html = payload?.html
         let fileName = payload?.fileName || `CV_${Date.now()}.docx`
 
-        if (!application || !fileBytes || !Array.isArray(fileBytes)) {
+        if (!application || (!fileBytes && !html)) {
             return { success: false, error: 'Invalid payload for application creation.' }
         }
 
@@ -165,7 +166,16 @@ ipcMain.handle('create-application-with-cv', async (event, payload) => {
         )
 
         const cvPath = path.join(appFolderPath, fileName)
-        const buffer = Buffer.from(fileBytes)
+        let buffer;
+        if (html) {
+            const htmlDocument = `<!DOCTYPE html><html><head><meta charset="utf-8" /></head><body>${html}</body></html>`
+            buffer = await HTMLtoDOCX(htmlDocument, null, {
+                footer: false,
+                pageNumber: false,
+            })
+        } else {
+            buffer = Buffer.from(fileBytes)
+        }
         await fs.writeFile(cvPath, buffer)
 
         return {
@@ -435,16 +445,25 @@ ipcMain.handle("save-docx-to-path", async (event, payload) => {
     try {
         const filePath = payload?.filePath
         const fileBytes = payload?.fileBytes
+        const html = payload?.html
 
         if (!filePath) {
             return { success: false, error: "File path not provided." }
         }
 
-        if (!Array.isArray(fileBytes)) {
+        let buffer;
+        if (html) {
+            const htmlDocument = `<!DOCTYPE html><html><head><meta charset="utf-8" /></head><body>${html}</body></html>`
+            buffer = await HTMLtoDOCX(htmlDocument, null, {
+                footer: false,
+                pageNumber: false,
+            })
+        } else if (Array.isArray(fileBytes)) {
+            buffer = Buffer.from(fileBytes)
+        } else {
             return { success: false, error: "Invalid file data." }
         }
 
-        const buffer = Buffer.from(fileBytes)
         await fs.writeFile(filePath, buffer)
 
         return { success: true, filePath }

@@ -4,7 +4,10 @@ import AIPanel from "./components/AIPanel";
 import { cvTemplate } from "./utils/cvTemplate";
 import { callLLM, improveBulletWithAI } from "./services/groq";
 import { docxTextToTiptapJson } from "./utils/docxToTiptap";
-import { exportCVToDocxFromHtml } from "./utils/docxExport";
+import {
+  exportCVToDocxFromStructuredData,
+  createStructuredCvFromEditorJson,
+} from "./utils/docxExport";
 
 function replaceFirstMatchInJson(node, originalText, replacementText) {
   if (!node) return { node, replaced: false };
@@ -32,6 +35,7 @@ export default function App() {
   const [cvContent, setCvContent] = useState("");
   const [cvHtml, setCvHtml] = useState("");
   const [cvJson, setCvJson] = useState(cvTemplate);
+  const [cvStructuredData, setCvStructuredData] = useState(createStructuredCvFromEditorJson(cvTemplate));
   const [editorContent, setEditorContent] = useState(cvTemplate);
   const [editor, setEditor] = useState(null);
   const [application, setApplication] = useState(null);
@@ -64,6 +68,10 @@ export default function App() {
             : docxTextToTiptapJson(readResult.text);
           setEditorContent(importedContent);
           setCvContent(readResult.text || "");
+          const structuredSource = typeof importedContent === "string"
+            ? docxTextToTiptapJson(readResult.text)
+            : importedContent;
+          setCvStructuredData(createStructuredCvFromEditorJson(structuredSource));
         }
       } catch (initError) {
         const message = initError.message || "Editor initialization failed.";
@@ -158,16 +166,12 @@ export default function App() {
   const saveCV = async () => {
     try {
       setError("");
-      if (!cvHtml?.trim()) {
+      if (!cvHtml || !cvHtml.trim()) {
         throw new Error("CV content is empty. Please enter your CV before saving.");
       }
 
-      const arrayBuffer = await exportCVToDocxFromHtml(cvHtml);
-      const uint8Array = new Uint8Array(arrayBuffer);
-      const fileBytes = Array.from(uint8Array);
-
       if (application && application.appId && cvPath) {
-        const result = await window.electronAPI?.saveDocxToPath({ filePath: cvPath, fileBytes });
+        const result = await window.electronAPI?.saveDocxToPath({ filePath: cvPath, html: cvHtml });
         if (!result?.success) throw new Error(result?.error || "Could not save CV file.");
       } else if (application) {
         const sanitizedName = templateName
@@ -175,15 +179,16 @@ export default function App() {
           : `application_${Date.now()}`;
         const result = await window.electronAPI?.createApplicationWithCv({
           application,
-          fileBytes,
+          html: cvHtml,
           fileName: `CV_${sanitizedName}.docx`,
         });
         if (!result?.success) throw new Error(result?.error || "Could not create application and save CV.");
       } else if (cvPath) {
-        const result = await window.electronAPI?.saveDocxToPath({ filePath: cvPath, fileBytes });
+        const result = await window.electronAPI?.saveDocxToPath({ filePath: cvPath, html: cvHtml });
         if (!result?.success) throw new Error(result?.error || "Could not save CV file.");
       } else {
-        throw new Error("Unable to save CV. Application details are missing.");
+        const result = await window.electronAPI?.saveDocx({ html: cvHtml });
+        if (!result?.success) throw new Error(result?.error || "Unable to save CV.");
       }
 
       await window.electronAPI?.closeTemplateEditor?.();
@@ -217,6 +222,7 @@ export default function App() {
             setCvContent(text);
             setCvJson(json);
             setCvHtml(html);
+            setCvStructuredData(createStructuredCvFromEditorJson(json));
           }}
           onImproveSelectedBullet={improveSelectedBullet}
         />

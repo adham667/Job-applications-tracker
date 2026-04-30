@@ -7,6 +7,334 @@ const DEFAULT_MARGINS = {
   right: convertInchesToTwip(0.75),
 };
 
+const DEFAULT_CV_STYLE = {
+  fontFamily: "Calibri",
+  fontSize: 24,
+  heading1Size: 40,
+  heading2Size: 28,
+  heading3Size: 24,
+  textColor: "333333",
+  headingColor: "111111",
+  normalSpacing: { after: 120, line: 360, lineRule: "auto" },
+  sectionSpacing: { before: 240, after: 120 },
+  bulletSpacing: { after: 80, line: 360, lineRule: "auto" },
+};
+
+export function createStructuredCvFromEditorJson(editorJson) {
+  const structured = {
+    personalInfo: {
+      fullName: "",
+      contact: "",
+      summary: "",
+    },
+    sections: [],
+  };
+
+  if (!editorJson || !Array.isArray(editorJson.content)) {
+    return structured;
+  }
+
+  let currentSection = { title: "Summary", blocks: [] };
+  let sawName = false;
+  let sawContact = false;
+
+  editorJson.content.forEach((node) => {
+    if (!node) return;
+
+    if (node.type === "heading") {
+      const headingText = getTextFromNode(node).trim();
+      if (!sawName && node.attrs?.level === 1) {
+        structured.personalInfo.fullName = headingText;
+        sawName = true;
+        return;
+      }
+
+      if (sawName && !sawContact && currentSection.blocks.length === 0 && currentSection.title === "Summary") {
+        structured.personalInfo.contact = headingText;
+        sawContact = true;
+        return;
+      }
+
+      if (currentSection.blocks.length > 0 || currentSection.title !== "Summary") {
+        structured.sections.push(currentSection);
+      }
+      currentSection = { title: headingText || "Section", blocks: [] };
+      return;
+    }
+
+    if (node.type === "paragraph") {
+      const paragraphText = getTextFromNode(node).trim();
+      if (!paragraphText) return;
+
+      if (!sawName) {
+        structured.personalInfo.fullName = paragraphText;
+        sawName = true;
+        return;
+      }
+
+      if (sawName && !sawContact && currentSection.blocks.length === 0 && currentSection.title === "Summary") {
+        structured.personalInfo.contact = paragraphText;
+        sawContact = true;
+        return;
+      }
+
+      if (currentSection.title === "Summary" && currentSection.blocks.length === 0 && !structured.personalInfo.summary) {
+        structured.personalInfo.summary = paragraphText;
+        return;
+      }
+
+      currentSection.blocks.push({ type: "paragraph", content: node.content || [] });
+      return;
+    }
+
+    if (node.type === "bulletList") {
+      const items = [];
+      if (Array.isArray(node.content)) {
+        node.content.forEach((listItem) => {
+          if (!listItem || listItem.type !== "listItem" || !Array.isArray(listItem.content)) return;
+          const itemContent = [];
+          listItem.content.forEach((child) => {
+            if (child.type === "paragraph" && Array.isArray(child.content)) {
+              itemContent.push(...child.content);
+            } else if (child.content) {
+              itemContent.push(...child.content);
+            }
+          });
+          items.push({ content: itemContent });
+        });
+      }
+      if (items.length > 0) {
+        currentSection.blocks.push({ type: "bulletList", items });
+      }
+      return;
+    }
+
+    // Ignore unsupported or nested nodes to keep the export source strictly structured.
+  });
+
+  if (currentSection.blocks.length > 0 || currentSection.title !== "Summary") {
+    structured.sections.push(currentSection);
+  }
+
+  return structured;
+}
+
+export async function exportCVToDocxFromStructuredData(structuredCv, style = DEFAULT_CV_STYLE) {
+  if (!structuredCv) {
+    throw new Error("Structured CV data is missing.");
+  }
+
+  const children = buildDocumentChildrenFromStructuredCv(structuredCv, style);
+  if (children.length === 0) {
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "No CV content available.",
+            font: style.fontFamily,
+            size: style.fontSize,
+            color: style.textColor,
+          }),
+        ],
+        spacing: style.normalSpacing,
+      })
+    );
+  }
+
+  const doc = new Document({
+    sections: [
+      {
+        children,
+        margins: DEFAULT_MARGINS,
+      },
+    ],
+  });
+
+  const blob = await Packer.toBlob(doc);
+  return blob.arrayBuffer();
+}
+
+function buildDocumentChildrenFromStructuredCv(structuredCv, style) {
+  const children = [];
+  const info = structuredCv.personalInfo || {};
+
+  if (info.fullName) {
+    children.push(
+      new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        children: [
+          new TextRun({
+            text: info.fullName,
+            bold: true,
+            font: style.fontFamily,
+            size: style.heading1Size,
+            color: style.headingColor,
+          }),
+        ],
+        spacing: { before: style.sectionSpacing.before, after: style.sectionSpacing.after, lineRule: "auto" },
+      })
+    );
+  }
+
+  if (info.contact) {
+    children.push(
+      new Paragraph({
+        children: createTextRunsFromNodes([{ type: "text", text: info.contact }], style),
+        spacing: style.normalSpacing,
+      })
+    );
+  }
+
+  if (info.summary) {
+    children.push(
+      new Paragraph({
+        heading: HeadingLevel.HEADING_2,
+        children: [
+          new TextRun({
+            text: "Summary",
+            bold: true,
+            font: style.fontFamily,
+            size: style.heading2Size,
+            color: style.headingColor,
+          }),
+        ],
+        spacing: { before: style.sectionSpacing.before, after: style.normalSpacing.after, lineRule: "auto" },
+      })
+    );
+    children.push(
+      new Paragraph({
+        children: createTextRunsFromNodes([{ type: "text", text: info.summary }], style),
+        spacing: style.normalSpacing,
+      })
+    );
+  }
+
+  if (Array.isArray(structuredCv.sections)) {
+    structuredCv.sections.forEach((section) => {
+      if (!section || !section.title) return;
+
+      children.push(
+        new Paragraph({
+          heading: HeadingLevel.HEADING_2,
+          children: [
+            new TextRun({
+              text: section.title,
+              bold: true,
+              font: style.fontFamily,
+              size: style.heading2Size,
+              color: style.headingColor,
+            }),
+          ],
+          spacing: { before: style.sectionSpacing.before, after: style.normalSpacing.after, lineRule: "auto" },
+        })
+      );
+
+      if (Array.isArray(section.blocks)) {
+        section.blocks.forEach((block) => {
+          if (block.type === "paragraph") {
+            children.push(
+              new Paragraph({
+                children: createTextRunsFromNodes(block.content || [], style),
+                spacing: style.normalSpacing,
+              })
+            );
+          }
+
+          if (block.type === "bulletList" && Array.isArray(block.items)) {
+            block.items.forEach((item) => {
+              children.push(
+                new Paragraph({
+                  children: createTextRunsFromNodes(item.content || [], style),
+                  bullet: { level: 0 },
+                  spacing: style.bulletSpacing,
+                })
+              );
+            });
+          }
+        });
+      }
+    });
+  }
+
+  return children;
+}
+
+function createTextRunsFromNodes(nodes, style) {
+  const runs = [];
+  if (!Array.isArray(nodes)) {
+    return [
+      new TextRun({
+        text: "",
+        font: style.fontFamily,
+        size: style.fontSize,
+        color: style.textColor,
+      }),
+    ];
+  }
+
+  nodes.forEach((node) => {
+    if (!node) return;
+
+    if (node.type === "text") {
+      const marks = Array.isArray(node.marks) ? node.marks : [];
+      const isBold = marks.some((m) => m.type === "bold");
+      const isItalic = marks.some((m) => m.type === "italic");
+      const isUnderline = marks.some((m) => m.type === "underline");
+      const colorMark = marks.find((m) => m.type === "textStyle");
+      const color = colorMark?.attrs?.color?.replace("#", "") || style.textColor;
+
+      runs.push(
+        new TextRun({
+          text: node.text || "",
+          bold: isBold || undefined,
+          italic: isItalic || undefined,
+          underline: isUnderline ? { type: UnderlineType.SINGLE } : undefined,
+          color,
+          font: style.fontFamily,
+          size: style.fontSize,
+        })
+      );
+      return;
+    }
+
+    if (node.type === "hardBreak" || node.type === "lineBreak" || node.type === "break") {
+      runs.push(new TextRun({ text: "", break: 1 }));
+      return;
+    }
+
+    if (node.content && Array.isArray(node.content)) {
+      runs.push(...createTextRunsFromNodes(node.content, style));
+      return;
+    }
+
+    if (typeof node.text === "string") {
+      runs.push(
+        new TextRun({
+          text: node.text,
+          font: style.fontFamily,
+          size: style.fontSize,
+          color: style.textColor,
+        })
+      );
+    }
+  });
+
+  return runs;
+}
+
+function getTextFromNode(node) {
+  if (!node) return "";
+  if (node.type === "text") {
+    return node.text || "";
+  }
+
+  if (Array.isArray(node.content)) {
+    return node.content.map(getTextFromNode).join("");
+  }
+
+  return "";
+}
+
 export async function exportCVToDocxFromHtml(editorHtml) {
   const safeHtml = (editorHtml || "").trim();
   if (!safeHtml) {

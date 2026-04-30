@@ -159,19 +159,32 @@ async function addNewTemplate() {
 }
 
 function showNotification(message, type = 'success') {
-    // You can implement this function to show notifications
-    // For now, we'll use alert
-    alert(message)
+    const notification = document.createElement('div')
+    notification.className = `custom-notification ${type}`
+    notification.textContent = message
+    
+    document.body.appendChild(notification)
+    
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove()
+        }
+    }, 3000)
 }
 
 function showCustomNotification(message, type = 'success') {
     console.log('notification:', type, message)
-    if (type === 'error') {
-        alert(message)
-    } else {
-        // For now, use alert for success notifications as well
-        alert(message)
-    }
+    const notification = document.createElement('div')
+    notification.className = `custom-notification ${type}`
+    notification.textContent = message
+    
+    document.body.appendChild(notification)
+    
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove()
+        }
+    }, 3000)
 }
 
 async function selectTemplate(templateName) {
