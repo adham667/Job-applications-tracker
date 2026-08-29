@@ -2,7 +2,6 @@
 
 A modern desktop application built with Electron for tracking job applications, managing CV templates, and organizing your job search process.
 
-![Application Screenshot](screenshots/app-screenshot.png)
 
 ## Features
 
@@ -101,7 +100,6 @@ npm start
 - View all applications in the main table
 - Update application status using the dropdown menu
 - Delete applications when needed
-- View application statistics in the dashboard
 
 ## Project Structure
 
