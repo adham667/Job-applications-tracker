@@ -35,6 +35,18 @@ A modern desktop application built with Electron for tracking job applications, 
   - Custom notifications and confirmations
   - Font Awesome icons integration
 
+## Screenshots
+
+### Main Page
+![Main Page](readme%20images/original.png)
+
+### Template Selection 
+![Screenshot 1](readme%20images/temp.png)
+![Screenshot 2](readme%20images/temp2.png)
+
+### Template Editor
+![Template Editor](readme%20images/gallery.jpg)
+
 ## Installation
 
 1. Clone the repository:
